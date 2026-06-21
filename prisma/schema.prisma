@@ -1,0 +1,11 @@
+// Tables are added in FOUND-3 (data model ticket).
+// This stub wires the SQLite datasource only.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
