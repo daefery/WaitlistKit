@@ -4,6 +4,24 @@ Launch a beautiful "coming soon" page in minutes, capture emails, and let referr
 
 ---
 
+## Local development
+
+```bash
+# 1. Install dependencies (Node 20+, pnpm 9.x)
+cp .env.example .env
+pnpm install         # also runs prisma generate
+
+# 2. Create the local SQLite database
+pnpm prisma migrate dev --name init
+
+# 3. Start the dev server
+pnpm dev             # → http://localhost:3000
+```
+
+> **`.env`** is gitignored. Copy `.env.example` once per clone. Credentials for Supabase/Stripe go in `.env` and must never be committed.
+
+---
+
 ## 1. Product Summary
 
 **What it is:** A SaaS that lets founders create a hosted waitlist / coming-soon landing page where each subscriber receives a personal referral link and a queue position. Inviting friends moves them up the list, unlocks rewards, and turns every signup into a growth loop.
