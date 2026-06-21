@@ -1,6 +1,3 @@
-// Tables are added in FOUND-3 (data model ticket).
-// This stub wires the SQLite datasource only.
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,4 +5,58 @@ generator client {
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
+}
+
+enum Plan {
+  FREE
+  STARTER
+  PRO
+}
+
+// Slice A — founder account; mirrors Clerk identity + billing handles
+model User {
+  id               String     @id @default(cuid())
+  clerkId          String     @unique
+  email            String
+  name             String
+  plan             Plan       @default(FREE)
+  stripeCustomerId String?
+  createdAt        DateTime   @default(now())
+  waitlists        Waitlist[]
+}
+
+// Slice B — hosted waitlist page; slug is globally unique (PAGE-2)
+model Waitlist {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  name         String
+  slug         String   @unique
+  customDomain String?
+  themeJson    Json
+  headline     String
+  subheadline  String?
+  logoUrl      String?
+  rewardsJson  Json?
+  createdAt    DateTime @default(now())
+  signups      Signup[]
+}
+
+// Slice C — subscriber row; carries REF-1 / ANTI-2 / DATA-3 invariants
+model Signup {
+  id            String   @id @default(cuid())
+  waitlistId    String
+  waitlist      Waitlist @relation(fields: [waitlistId], references: [id], onDelete: Cascade)
+  email         String
+  verified      Boolean  @default(false)
+  referralCode  String   @unique
+  referredById  String?
+  referredBy    Signup?  @relation("Referral", fields: [referredById], references: [id], onDelete: SetNull)
+  referrals     Signup[] @relation("Referral")
+  position      Int
+  referralCount Int      @default(0)
+  source        String?
+  createdAt     DateTime @default(now())
+
+  @@unique([waitlistId, email])
 }
